@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Survey Customer – CPF</title>
+  <meta charset="UTF-8" />
+  <title>Survey Kemitraan – Customer</title>
 
-  <!-- ✅ CSS WAJIB (INI KUNCI, JANGAN DIUBAH) -->
+  <!-- CSS: 2 level naik dari /survey/customer -->
   <link rel="stylesheet" href="../../css/cpf-style.css">
 </head>
 
@@ -12,69 +12,122 @@
 
 <div class="container">
 
-  <h2>Survey Customer (CPF)</h2>
+  <!-- INTRO -->
+  <section id="intro">
+    <h2>Survey Kemitraan Customer</h2>
 
-  <p class="note">
-    Silakan beri penilaian 1–5.<br>
-    1 = Sangat Tidak Setuju, 5 = Sangat Setuju
-  </p>
+    <p><strong>Jumlah pertanyaan:</strong></p>
+    <ul>
+      <li>7 pertanyaan skala (wajib dijawab)</li>
+      <li>2 pertanyaan refleksi (opsional)</li>
+    </ul>
 
-  <form id="surveyForm">
+    <p><strong>Anonim.</strong> Tidak digunakan untuk evaluasi individu.</p>
 
-    <label>Q17</label>
-    <input type="number" min="1" max="5" name="Q17" required>
+    <button onclick="startSurvey()">Mulai Survey</button>
+  </section>
 
-    <label>Q18</label>
-    <input type="number" min="1" max="5" name="Q18" required>
+  <!-- SURVEY -->
+  <section id="survey" style="display:none;">
+    <p><strong>Petunjuk:</strong><br>
+      Silakan pilih jawaban Anda dengan memilih salah satu angka.
+    </p>
 
-    <label>Q19</label>
-    <input type="number" min="1" max="5" name="Q19" required>
+    <p class="note">
+      1 = Sangat Tidak Setuju ·
+      2 = Tidak Setuju ·
+      3 = Netral ·
+      4 = Setuju ·
+      5 = Sangat Setuju
+    </p>
 
-    <label>Q20</label>
-    <input type="number" min="1" max="5" name="Q20" required>
+    <form id="surveyForm"></form>
 
-    <label>Q21</label>
-    <input type="number" min="1" max="5" name="Q21" required>
+    <button onclick="goToReflection()">Lanjut</button>
+  </section>
 
-    <label>Q22</label>
-    <input type="number" min="1" max="5" name="Q22" required>
+  <!-- REFLECTION -->
+  <section id="reflection" style="display:none;">
+    <h3>Pertanyaan Refleksi (Opsional)</h3>
 
-    <label>Q23</label>
-    <input type="number" min="1" max="5" name="Q23" required>
+    <label>
+      1. Apa satu hal yang paling membuat Anda merasa puas atau kurang puas
+      dengan layanan PML? Mohon ceritakan alasannya.
+    </label>
+    <textarea id="oe1"></textarea>
 
-    <button type="button" onclick="submitSurvey()">Kirim Jawaban</button>
-  </form>
+    <label>
+      2. Jika Anda harus merekomendasikan PML kepada rekan atau kolega Anda,
+      nilai utama apa yang akan Anda sampaikan? Jika tidak, apa yang harus kami perbaiki?
+    </label>
+    <textarea id="oe2"></textarea>
 
-  <div id="status" class="note"></div>
+    <button onclick="submitSurvey()">Kirim Jawaban</button>
+  </section>
+
+  <!-- THANK YOU -->
+  <section id="thanks" style="display:none;">
+    <h3>Terima kasih</h3>
+    <p>Masukan Anda sangat berarti bagi kami.</p>
+  </section>
 
 </div>
 
 <script>
 /* ================= SUPABASE CONFIG ================= */
-const SUPABASE_URL = "https://XXXXX.supabase.co";        // GANTI
-const SUPABASE_ANON_KEY = "ANON_PUBLIC_KEY_KAMU";        // GANTI
+const SUPABASE_URL = "https://XXXXX.supabase.co";      // GANTI
+const SUPABASE_ANON_KEY = "ANON_KEY_KAMU";             // GANTI
 const TABLE = "cpf_survey_responses";
 
 /* ================= TOKEN ================= */
-const token = new URLSearchParams(window.location.search).get("token") || "NO_TOKEN";
+const token = new URLSearchParams(location.search).get("token") || "NO_TOKEN";
 
 /* ================= QUESTIONS ================= */
 const QUESTIONS = [
-  { id: "Q17", stage: "Customer Satisfaction" },
-  { id: "Q18", stage: "Customer Satisfaction" },
-  { id: "Q19", stage: "Customer Satisfaction" },
-  { id: "Q20", stage: "Customer Satisfaction" },
-  { id: "Q21", stage: "Customer Loyalty" },
-  { id: "Q22", stage: "Customer Loyalty" },
-  { id: "Q23", stage: "Customer Loyalty" }
+  { id:"Q17", stage:"Customer Satisfaction", text:"Layanan perusahaan ini konsisten tepat waktu dan sesuai dengan yang dijanjikan." },
+  { id:"Q18", stage:"Customer Satisfaction", text:"Kualitas layanan perusahaan ini konsisten dari waktu ke waktu." },
+  { id:"Q19", stage:"Customer Satisfaction", text:"Perusahaan ini merespons masalah atau perubahan dengan cepat dan jelas." },
+  { id:"Q20", stage:"Customer Satisfaction", text:"Gangguan operasional ditangani secara profesional dan bertanggung jawab." },
+  { id:"Q21", stage:"Customer Loyalty", text:"Kami ingin melanjutkan kerja sama dengan perusahaan ini di masa depan." },
+  { id:"Q22", stage:"Customer Loyalty", text:"Jika memungkinkan, kami lebih memilih perusahaan ini dibandingkan penyedia lain." },
+  { id:"Q23", stage:"Customer Loyalty", text:"Gangguan kecil tidak mengurangi kepercayaan kami terhadap perusahaan ini." }
 ];
+
+const form = document.getElementById("surveyForm");
+
+/* ================= RENDER ================= */
+function startSurvey() {
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("survey").style.display = "block";
+
+  form.innerHTML = "";
+  QUESTIONS.forEach((q,i)=>{
+    form.innerHTML += `
+      <p><strong>Soal ${i+1}.</strong> ${q.text}</p>
+      ${[1,2,3,4,5].map(v=>`
+        <label><input type="radio" name="${q.id}" value="${v}"> ${v}</label>
+      `).join(" ")}
+      <hr>
+    `;
+  });
+}
+
+function goToReflection() {
+  for (const q of QUESTIONS) {
+    if (!form[q.id].value) {
+      alert("Semua pertanyaan skala wajib dijawab.");
+      return;
+    }
+  }
+  document.getElementById("survey").style.display = "none";
+  document.getElementById("reflection").style.display = "block";
+}
 
 /* ================= SUBMIT ================= */
 async function submitSurvey() {
-  const form = document.getElementById("surveyForm");
   const rows = [];
 
-  for (const q of QUESTIONS) {
+  QUESTIONS.forEach(q=>{
     rows.push({
       survey_type: "customer",
       token: token,
@@ -83,29 +136,27 @@ async function submitSurvey() {
       value: Number(form[q.id].value),
       submitted_at: new Date().toISOString()
     });
+  });
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Accept":"application/json",
+      "apikey":SUPABASE_ANON_KEY,
+      "Authorization":"Bearer " + SUPABASE_ANON_KEY,
+      "Prefer":"return=minimal"
+    },
+    body: JSON.stringify(rows)
+  });
+
+  if (!res.ok) {
+    alert("Gagal mengirim data");
+    return;
   }
 
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-        "Prefer": "return=minimal"
-      },
-      body: JSON.stringify(rows)
-    });
-
-    if (!res.ok) throw new Error();
-
-    document.getElementById("status").innerText =
-      "✅ Jawaban berhasil disimpan. Terima kasih.";
-  } catch {
-    document.getElementById("status").innerText =
-      "❌ Gagal mengirim data.";
-  }
+  document.getElementById("reflection").style.display = "none";
+  document.getElementById("thanks").style.display = "block";
 }
 </script>
 
