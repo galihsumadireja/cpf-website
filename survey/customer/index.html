@@ -4,16 +4,15 @@
   <meta charset="UTF-8" />
   <title>Survey Kemitraan – Customer</title>
 
-  <!-- CSS: 2 level naik dari /survey/customer -->
-  <link rel="stylesheet" href="../../css/cpf-style.css">
+  <!-- CSS: dari /survey/customer ke /css -->
+  ../../css/cpf-style.css
 </head>
-
 <body>
 
 <div class="container">
 
   <!-- INTRO -->
-  <section id="intro">
+  <div id="intro">
     <h2>Survey Kemitraan Customer</h2>
 
     <p><strong>Jumlah pertanyaan:</strong></p>
@@ -23,16 +22,14 @@
     </ul>
 
     <p><strong>Anonim.</strong> Tidak digunakan untuk evaluasi individu.</p>
-
     <button onclick="startSurvey()">Mulai Survey</button>
-  </section>
+  </div>
 
-  <!-- SURVEY -->
-  <section id="survey" style="display:none;">
+  <!-- LIKERT -->
+  <div id="survey" style="display:none;">
     <p><strong>Petunjuk:</strong><br>
       Silakan pilih jawaban Anda dengan memilih salah satu angka.
     </p>
-
     <p class="note">
       1 = Sangat Tidak Setuju ·
       2 = Tidak Setuju ·
@@ -44,10 +41,10 @@
     <form id="surveyForm"></form>
 
     <button onclick="goToReflection()">Lanjut</button>
-  </section>
+  </div>
 
-  <!-- REFLECTION -->
-  <section id="reflection" style="display:none;">
+  <!-- REFLEKSI -->
+  <div id="reflection" style="display:none;">
     <h3>Pertanyaan Refleksi (Opsional)</h3>
 
     <label>
@@ -63,26 +60,26 @@
     <textarea id="oe2"></textarea>
 
     <button onclick="submitSurvey()">Kirim Jawaban</button>
-  </section>
+  </div>
 
   <!-- THANK YOU -->
-  <section id="thanks" style="display:none;">
+  <div id="thanks" style="display:none;">
     <h3>Terima kasih</h3>
     <p>Masukan Anda sangat berarti bagi kami.</p>
-  </section>
+  </div>
 
 </div>
 
 <script>
-/* ================= SUPABASE CONFIG ================= */
-const SUPABASE_URL = "https://XXXXX.supabase.co";      // GANTI
-const SUPABASE_ANON_KEY = "ANON_KEY_KAMU";             // GANTI
+/* ===== SUPABASE ===== */
+const SUPABASE_URL = "https://XXXXX.supabase.co";     // GANTI
+const SUPABASE_ANON_KEY = "ANON_KEY_KAMU";            // GANTI
 const TABLE = "cpf_survey_responses";
 
-/* ================= TOKEN ================= */
+/* ===== TOKEN ===== */
 const token = new URLSearchParams(location.search).get("token") || "NO_TOKEN";
 
-/* ================= QUESTIONS ================= */
+/* ===== QUESTIONS ===== */
 const QUESTIONS = [
   { id:"Q17", stage:"Customer Satisfaction", text:"Layanan perusahaan ini konsisten tepat waktu dan sesuai dengan yang dijanjikan." },
   { id:"Q18", stage:"Customer Satisfaction", text:"Kualitas layanan perusahaan ini konsisten dari waktu ke waktu." },
@@ -95,7 +92,7 @@ const QUESTIONS = [
 
 const form = document.getElementById("surveyForm");
 
-/* ================= RENDER ================= */
+/* ===== UI FLOW ===== */
 function startSurvey() {
   document.getElementById("intro").style.display = "none";
   document.getElementById("survey").style.display = "block";
@@ -123,42 +120,39 @@ function goToReflection() {
   document.getElementById("reflection").style.display = "block";
 }
 
-/* ================= SUBMIT ================= */
+/* ===== SUBMIT ===== */
 async function submitSurvey() {
-  const rows = [];
+  const rows = QUESTIONS.map(q=>({
+    survey_type:"customer",
+    token:token,
+    cpf_stage:q.stage,
+    question_id:q.id,
+    value:Number(form[q.id].value),
+    submitted_at:new Date().toISOString()
+  }));
 
-  QUESTIONS.forEach(q=>{
-    rows.push({
-      survey_type: "customer",
-      token: token,
-      cpf_stage: q.stage,
-      question_id: q.id,
-      value: Number(form[q.id].value),
-      submitted_at: new Date().toISOString()
-    });
-  });
-
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`,{
     method:"POST",
     headers:{
       "Content-Type":"application/json",
       "Accept":"application/json",
       "apikey":SUPABASE_ANON_KEY,
-      "Authorization":"Bearer " + SUPABASE_ANON_KEY,
+      "Authorization":"Bearer "+SUPABASE_ANON_KEY,
       "Prefer":"return=minimal"
     },
-    body: JSON.stringify(rows)
+    body:JSON.stringify(rows)
   });
 
-  if (!res.ok) {
+  if(!res.ok){
     alert("Gagal mengirim data");
     return;
   }
 
-  document.getElementById("reflection").style.display = "none";
-  document.getElementById("thanks").style.display = "block";
+  document.getElementById("reflection").style.display="none";
+  document.getElementById("thanks").style.display="block";
 }
 </script>
 
 </body>
 </html>
+``
