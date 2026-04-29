@@ -5,14 +5,10 @@
   <title>Survey Kemitraan – Customer</title>
 
   <!-- CSS: dari /survey/customer ke /css -->
-  ../../css/cpf-style.css
-</head>
-<body>
-
-<div class="container">
+  <link rel="stylesheet" href="../../css/cpf-styless="container">
 
   <!-- INTRO -->
-  <div id="intro">
+  <section id="intro">
     <h2>Survey Kemitraan Customer</h2>
 
     <p><strong>Jumlah pertanyaan:</strong></p>
@@ -22,14 +18,16 @@
     </ul>
 
     <p><strong>Anonim.</strong> Tidak digunakan untuk evaluasi individu.</p>
+
     <button onclick="startSurvey()">Mulai Survey</button>
-  </div>
+  </section>
 
   <!-- LIKERT -->
-  <div id="survey" style="display:none;">
+  <section id="survey" style="display:none;">
     <p><strong>Petunjuk:</strong><br>
       Silakan pilih jawaban Anda dengan memilih salah satu angka.
     </p>
+
     <p class="note">
       1 = Sangat Tidak Setuju ·
       2 = Tidak Setuju ·
@@ -41,45 +39,49 @@
     <form id="surveyForm"></form>
 
     <button onclick="goToReflection()">Lanjut</button>
-  </div>
+  </section>
 
   <!-- REFLEKSI -->
-  <div id="reflection" style="display:none;">
+  <section id="reflection" style="display:none;">
     <h3>Pertanyaan Refleksi (Opsional)</h3>
 
-    <label>
-      1. Apa satu hal yang paling membuat Anda merasa puas atau kurang puas
-      dengan layanan PML? Mohon ceritakan alasannya.
-    </label>
-    <textarea id="oe1"></textarea>
+    <div class="field">
+      <label for="oe1">
+        1. Apa satu hal yang paling membuat Anda merasa puas atau kurang puas
+        dengan layanan PML? Mohon ceritakan alasannya.
+      </label>
+      <textarea id="oe1" rows="4" style="width:100%;"></textarea>
+    </div>
 
-    <label>
-      2. Jika Anda harus merekomendasikan PML kepada rekan atau kolega Anda,
-      nilai utama apa yang akan Anda sampaikan? Jika tidak, apa yang harus kami perbaiki?
-    </label>
-    <textarea id="oe2"></textarea>
+    <div class="field">
+      <label for="oe2">
+        2. Jika Anda harus merekomendasikan PML kepada rekan atau kolega Anda,
+        nilai utama apa yang akan Anda sampaikan? Jika tidak, apa yang harus kami perbaiki?
+      </label>
+      <textarea id="oe2" rows="4" style="width:100%;"></textarea>
+    </div>
 
     <button onclick="submitSurvey()">Kirim Jawaban</button>
-  </div>
+  </section>
 
   <!-- THANK YOU -->
-  <div id="thanks" style="display:none;">
+  <section id="thanks" style="display:none;">
     <h3>Terima kasih</h3>
     <p>Masukan Anda sangat berarti bagi kami.</p>
-  </div>
+  </section>
 
 </div>
 
 <script>
-/* ===== SUPABASE ===== */
-const SUPABASE_URL = "https://XXXXX.supabase.co";     // GANTI
-const SUPABASE_ANON_KEY = "ANON_KEY_KAMU";            // GANTI
+/* ================= SUPABASE ================= */
+const SUPABASE_URL = "https://XXXXX.supabase.co";   // GANTI
+const SUPABASE_ANON_KEY = "ANON_KEY_KAMU";          // GANTI
 const TABLE = "cpf_survey_responses";
 
-/* ===== TOKEN ===== */
+/* ================= TOKEN ================= */
 const token = new URLSearchParams(location.search).get("token") || "NO_TOKEN";
 
-/* ===== QUESTIONS ===== */
+/* ================= QUESTIONS ================= */
 const QUESTIONS = [
   { id:"Q17", stage:"Customer Satisfaction", text:"Layanan perusahaan ini konsisten tepat waktu dan sesuai dengan yang dijanjikan." },
   { id:"Q18", stage:"Customer Satisfaction", text:"Kualitas layanan perusahaan ini konsisten dari waktu ke waktu." },
@@ -92,7 +94,7 @@ const QUESTIONS = [
 
 const form = document.getElementById("surveyForm");
 
-/* ===== UI FLOW ===== */
+/* ================= FLOW ================= */
 function startSurvey() {
   document.getElementById("intro").style.display = "none";
   document.getElementById("survey").style.display = "block";
@@ -100,10 +102,14 @@ function startSurvey() {
   form.innerHTML = "";
   QUESTIONS.forEach((q,i)=>{
     form.innerHTML += `
-      <p><strong>Soal ${i+1}.</strong> ${q.text}</p>
-      ${[1,2,3,4,5].map(v=>`
-        <label><input type="radio" name="${q.id}" value="${v}"> ${v}</label>
-      `).join(" ")}
+      <div class="field">
+        <p><strong>Soal ${i+1}.</strong> ${q.text}</p>
+        ${[1,2,3,4,5].map(v=>`
+          <label style="margin-right:12px;">
+            <input type="radio" name="${q.id}" value="${v}"> ${v}
+          </label>
+        `).join("")}
+      </div>
       <hr>
     `;
   });
@@ -120,7 +126,7 @@ function goToReflection() {
   document.getElementById("reflection").style.display = "block";
 }
 
-/* ===== SUBMIT ===== */
+/* ================= SUBMIT ================= */
 async function submitSurvey() {
   const rows = QUESTIONS.map(q=>({
     survey_type:"customer",
@@ -155,4 +161,3 @@ async function submitSurvey() {
 
 </body>
 </html>
-``
