@@ -1,50 +1,65 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Survey Kemitraan – Customer</title>
-  <link rel="stylesheet" href="../../css/cpf-style.css">
-</head>
-<body>
+  <link rel="stylesheet" href="../../css/c<div class="container">
 
-<div class="container">
-
+  <!-- INTRO -->
   <section id="intro">
     <h2>Survey Kemitraan Customer</h2>
     <p><strong>7 pertanyaan skala</strong> (wajib) dan <strong>2 refleksi</strong> (opsional).</p>
-    <button onclick="startSurvey()">Mulai Survey</button>
+    <button type="button" onclick="startSurvey()">Mulai Survey</button>
   </section>
 
+  <!-- SKALA -->
   <section id="survey" style="display:none;">
+    <p class="note">
+      1 = Sangat Tidak Setuju · 5 = Sangat Setuju
+    </p>
     <form id="surveyForm"></form>
-    <button onclick="goToReflection()">Lanjut</button>
+    <button type="button" onclick="goToReflection()">Lanjut</button>
   </section>
 
+  <!-- REFLEKSI -->
   <section id="reflection" style="display:none;">
     <h3>Pertanyaan Refleksi (Opsional)</h3>
 
-    <label>1. Hal paling memuaskan / kurang memuaskan?</label>
-    <textarea id="oe1"></textarea>
+    <div class="field">
+      <label for="oe1">
+        1. Apa satu hal yang paling membuat Anda merasa puas atau kurang puas
+        dengan layanan PML? Mohon ceritakan alasannya.
+      </label>
+      <textarea id="oe1" rows="4" style="width:100%;"></textarea>
+    </div>
 
-    <label>2. Nilai utama PML / perbaikan?</label>
-    <textarea id="oe2"></textarea>
+    <div class="field">
+      <label for="oe2">
+        2. Jika Anda harus merekomendasikan PML kepada rekan atau kolega Anda,
+        nilai utama apa yang akan Anda sampaikan? Jika tidak, apa yang harus kami perbaiki?
+      </label>
+      <textarea id="oe2" rows="4" style="width:100%;"></textarea>
+    </div>
 
-    <button onclick="submitSurvey()">Kirim Jawaban</button>
+    <button type="button" onclick="submitSurvey()">Kirim Jawaban</button>
   </section>
 
+  <!-- THANK YOU -->
   <section id="thanks" style="display:none;">
     <h3>Terima kasih</h3>
+    <p>Masukan Anda sangat berarti bagi kami.</p>
   </section>
 
 </div>
 
 <script>
-const SUPABASE_URL = "https://XXXXX.supabase.co";
-const SUPABASE_KEY = "ANON_KEY_KAMU";
+/* ===== SUPABASE ===== */
+const SUPABASE_URL = "https://XXXXX.supabase.co";   // GANTI
+const SUPABASE_KEY = "ANON_KEY_KAMU";                // GANTI
 
 const token = new URLSearchParams(location.search).get("token") || "NO_TOKEN";
 
-const QUEST = [
+const QUESTIONS = [
   ["Q17","Customer Satisfaction"],
   ["Q18","Customer Satisfaction"],
   ["Q19","Customer Satisfaction"],
@@ -56,42 +71,78 @@ const QUEST = [
 
 const form = document.getElementById("surveyForm");
 
+/* ===== FLOW ===== */
 function startSurvey(){
-  intro.style.display="none";
-  survey.style.display="block";
-  QUEST.forEach((q,i)=>{
-    form.innerHTML+=`<p>Soal ${i+1}</p>`+[1,2,3,4,5].map(v=>`<label><input type=radio name=${q[0]} value=${v}>${v}</label>`).join(" ");
+  document.getElementById("intro").style.display="none";
+  document.getElementById("survey").style.display="block";
+
+  form.innerHTML="";
+  QUESTIONS.forEach((q,i)=>{
+    form.innerHTML+=`
+      <p><strong>Soal ${i+1}</strong></p>
+      ${[1,2,3,4,5].map(v=>`
+        <label><input type="radio" name="${q[0]}" value="${v}"> ${v}</label>
+      `).join(" ")}
+      <hr>
+    `;
   });
 }
 
 function goToReflection(){
-  for(const q of QUEST) if(!form[q[0]].value) return alert("Lengkapi semua");
-  survey.style.display="none";
-  reflection.style.display="block";
+  for(const q of QUESTIONS){
+    if(!form[q[0]].value){
+      alert("Semua pertanyaan skala wajib dijawab.");
+      return;
+    }
+  }
+  document.getElementById("survey").style.display="none";
+  document.getElementById("reflection").style.display="block";
 }
 
+/* ===== SUBMIT ===== */
 async function submitSurvey(){
+  const rows = QUESTIONS.map(q=>({
+    survey_type:"customer",
+    token:token,
+    cpf_stage:q[1],
+    question_id:q[0],
+    value:Number(form[q[0]].value),
+    submitted_at:new Date().toISOString()
+  }));
+
   await fetch(`${SUPABASE_URL}/rest/v1/cpf_survey_responses`,{
     method:"POST",
-    headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json","Prefer":"return=minimal"},
-    body:JSON.stringify(QUEST.map(q=>({
-      survey_type:"customer",token,cpf_stage:q[1],question_id:q[0],
-      value:Number(form[q[0]].value),submitted_at:new Date()
-    })))
+    headers:{
+      "Content-Type":"application/json",
+      "Accept":"application/json",
+      "apikey":SUPABASE_KEY,
+      "Authorization":"Bearer "+SUPABASE_KEY,
+      "Prefer":"return=minimal"
+    },
+    body:JSON.stringify(rows)
   });
+
+  const oe1Text = document.getElementById("oe1").value;
+  const oe2Text = document.getElementById("oe2").value;
 
   await fetch(`${SUPABASE_URL}/rest/v1/cpf_survey_reflections`,{
     method:"POST",
-    headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json","Prefer":"return=minimal"},
+    headers:{
+      "Content-Type":"application/json",
+      "apikey":SUPABASE_KEY,
+      "Authorization":"Bearer "+SUPABASE_KEY,
+      "Prefer":"return=minimal"
+    },
     body:JSON.stringify([
-      {survey_type:"customer",token,question_id:"OE1",answer_text:oe1.value,submitted_at:new Date()},
-      {survey_type:"customer",token,question_id:"OE2",answer_text:oe2.value,submitted_at:new Date()}
+      {survey_type:"customer", token, question_id:"OE1", answer_text:oe1Text, submitted_at:new Date()},
+      {survey_type:"customer", token, question_id:"OE2", answer_text:oe2Text, submitted_at:new Date()}
     ])
   });
 
-  reflection.style.display="none";
-  thanks.style.display="block";
+  document.getElementById("reflection").style.display="none";
+  document.getElementById("thanks").style.display="block";
 }
 </script>
+
 </body>
 </html>
