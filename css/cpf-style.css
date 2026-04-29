@@ -1,0 +1,92 @@
+/* ===== GLOBAL ===== */
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: #f3f5f4;
+  color: #2f3e3a;
+  margin: 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 40px 32px;
+}
+
+/* ===== HERO ===== */
+
+.hero {
+  background-color: #6b716f;
+  color: #ffffff;
+  padding: 48px;
+  border-radius: 20px;
+  margin-bottom: 36px;
+}
+
+.hero h1 {
+  margin: 0 0 10px 0;
+  font-size: 32px;
+}
+
+.hero-sub {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+/* ===== CARD ===== */
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+}
+
+/* ===== CPF GRID ===== */
+
+.cpf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.cpf-tile {
+  padding: 14px 16px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+/* ===== SCORE COLORS ===== */
+
+.score-low {
+  background-color: #f6d6d6;
+  color: #7a2c2c;
+}
+
+.score-mid {
+  background-color: #f4e6d2;
+  color: #5a3b1e;
+}
+
+.score-high {
+  background-color: #e3ece8;
+  color: #2e403f;
+}
+
+/* ===== TEXT ===== */
+
+.note {
+  font-size: 13px;
+  color: #556e6b;
+  margin-top: 10px;
+}
+
+button {
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}

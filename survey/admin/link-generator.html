@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>CPF Survey Link Generator</title>
+  <link rel="stylesheet" href="../../css/cpf-style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>CPF – Survey Link Generator</h1>
+  <p>Gunakan link berikut untuk dibagikan ke responden.</p>
+
+  <div class="section">
+    <h2>Survey Crew</h2>
+    <button onclick="generateCrewLink()">Generate Link Crew</button>
+    <p id="crewLink"></p>
+  </div>
+
+  <div class="section">
+    <h2>Survey Customer / Charterer</h2>
+    <button onclick="generateCustomerLink()">Generate Link Customer</button>
+    <p id="customerLink"></p>
+  </div>
+</div>
+
+<script src="../../js/link-generator.js"></script>
+</body>
+</html>
