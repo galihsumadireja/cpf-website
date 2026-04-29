@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<htmlSurvey Customer – CPF</title><html lang="id">
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Survey Customer – CPF</title>
 
-  <!-- ✅ CSS (BENAR, TIDAK JADI TEKS) -->
-  ../css/cpf-style.css
+  <!-- ✅ CSS WAJIB (INI KUNCI, JANGAN DIUBAH) -->
+  <link rel="stylesheet" href="../../css/cpf-style.css">
 </head>
 
 <body>
@@ -11,12 +14,13 @@
 
   <h2>Survey Customer (CPF)</h2>
 
-  <p>
-    Mohon beri penilaian 1–5 untuk setiap pernyataan berikut.
-    <br>1 = Sangat Tidak Setuju, 5 = Sangat Setuju
+  <p class="note">
+    Silakan beri penilaian 1–5.<br>
+    1 = Sangat Tidak Setuju, 5 = Sangat Setuju
   </p>
 
   <form id="surveyForm">
+
     <label>Q17</label>
     <input type="number" min="1" max="5" name="Q17" required>
 
@@ -46,22 +50,15 @@
 </div>
 
 <script>
-/* =====================================================
-   🔴 GANTI DENGAN DATA SUPABASE KAMU
-   ===================================================== */
-const SUPABASE_URL = "https://XXXXX.supabase.co";
-const SUPABASE_ANON_KEY = "ANON_PUBLIC_KEY_KAMU";
+/* ================= SUPABASE CONFIG ================= */
+const SUPABASE_URL = "https://XXXXX.supabase.co";        // GANTI
+const SUPABASE_ANON_KEY = "ANON_PUBLIC_KEY_KAMU";        // GANTI
 const TABLE = "cpf_survey_responses";
 
-/* =====================================================
-   TOKEN DARI URL
-   ===================================================== */
-const params = new URLSearchParams(window.location.search);
-const token = params.get("token") || "NO_TOKEN";
+/* ================= TOKEN ================= */
+const token = new URLSearchParams(window.location.search).get("token") || "NO_TOKEN";
 
-/* =====================================================
-   DEFINISI PERTANYAAN
-   ===================================================== */
+/* ================= QUESTIONS ================= */
 const QUESTIONS = [
   { id: "Q17", stage: "Customer Satisfaction" },
   { id: "Q18", stage: "Customer Satisfaction" },
@@ -72,22 +69,18 @@ const QUESTIONS = [
   { id: "Q23", stage: "Customer Loyalty" }
 ];
 
-/* =====================================================
-   SUBMIT SURVEY KE SUPABASE
-   ===================================================== */
+/* ================= SUBMIT ================= */
 async function submitSurvey() {
   const form = document.getElementById("surveyForm");
   const rows = [];
 
   for (const q of QUESTIONS) {
-    const value = Number(form[q.id].value);
-
     rows.push({
       survey_type: "customer",
       token: token,
       cpf_stage: q.stage,
       question_id: q.id,
-      value: value,
+      value: Number(form[q.id].value),
       submitted_at: new Date().toISOString()
     });
   }
@@ -105,21 +98,16 @@ async function submitSurvey() {
       body: JSON.stringify(rows)
     });
 
-    if (!res.ok) {
-      throw new Error("Insert failed");
-    }
+    if (!res.ok) throw new Error();
 
     document.getElementById("status").innerText =
       "✅ Jawaban berhasil disimpan. Terima kasih.";
-  } catch (err) {
+  } catch {
     document.getElementById("status").innerText =
-      "❌ Gagal mengirim data";
+      "❌ Gagal mengirim data.";
   }
 }
 </script>
 
 </body>
 </html>
-``
-<head>
-  <meta charset="UTF-8">
