@@ -2,129 +2,96 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Survey Kemitraan – Crew</title>
-
-  <!-- CSS WAJIB VALID -->
-  <link rel="stylesheet" href="../../css/cpf-style.css">
+  <title>Survey Crew – CPF</title>
+  ../css/cpf-style.css
 </head>
 <body>
 
 <div class="container">
 
-  <!-- INTRO -->
-  <div class="section" id="intro">
-    <h2>Survey Kemitraan Crew – PT PML</h2>
+  <h2>Survey Crew (CPF)</h2>
 
-    <p>
-      Survey ini bertujuan memahami <strong>pengalaman kerja Anda bersama PT PML</strong>
-      sebagai bagian dari upaya perbaikan sistem kerja dan kemitraan.
-    </p>
+  <form id="surveyForm"></form>
 
-    <p>
-      <strong>Jumlah pertanyaan:</strong><br>
-      • 20 pertanyaan skala (wajib dijawab)<br>
-      • 2 pertanyaan refleksi (opsional)
-    </p>
+  <button onclick="submitSurvey()">Kirim Jawaban</button>
 
-    <p><strong>Anonim.</strong> Tidak digunakan untuk penilaian individu.</p>
-
-    <button type="button" onclick="startSurvey()">Mulai Survey</button>
-  </div>
-
-  <!-- LIKERT -->
-  <div class="section" id="survey" style="display:none;">
-    <p><strong>Petunjuk:</strong><br>
-      Silakan pilih jawaban Anda dengan memilih salah satu angka.
-    </p>
-
-    <p style="font-size:14px;color:#556e6b;">
-      1 = Sangat Tidak Setuju ·
-      2 = Tidak Setuju ·
-      3 = Ragu-ragu ·
-      4 = Setuju ·
-      5 = Sangat Setuju
-    </p>
-
-    <form id="likertForm"></form>
-
-    <button type="button" onclick="goToReflection()">Lanjut ke Pertanyaan Refleksi</button>
-  </div>
-
-  <!-- OPEN ENDED -->
-  <div class="section" id="openEnded" style="display:none;">
-    <h3>Pertanyaan Refleksi (Opsional)</h3>
-
-    <label>1. Hal apa yang paling berkesan selama bekerja di PT PML?</label>
-    <textarea id="oe1" rows="3" style="width:100%;"></textarea>
-
-    <label>2. Apa harapan Anda agar hubungan kerja/kemitraan Anda dengan PT PML lebih baik?</label>
-    <textarea id="oe2" rows="3" style="width:100%;"></textarea>
-
-    <button type="button" onclick="submitSurvey()">Kirim Jawaban</button>
-  </div>
-
-  <div class="section" id="thanks" style="display:none;">
-    <h3>Terima kasih</h3>
-  </div>
+  <div id="status" class="note"></div>
 
 </div>
 
-<!-- JS QUESTION BANK CREW (WAJIB) -->
-<script src="../../js/questions-crew.js"></script>
-
 <script>
-let answers = {};
-const token = new URLSearchParams(window.location.search).get("token") || "CREW-TEST";
+/* ================= CONFIG ================= */
+const SUPABASE_URL = "GANTI_DENGAN_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "GANTI_DENGAN_ANON_KEY";
+const TABLE = "cpf_survey_responses";
 
-function startSurvey() {
-  if (typeof CREW_QUESTIONS === "undefined") {
-    alert("CREW_QUESTIONS tidak ditemukan. Pastikan questions-crew.js benar.");
-    return;
-  }
+/* ================= TOKEN ================= */
+const params = new URLSearchParams(window.location.search);
+const token = params.get("token");
 
-  document.getElementById("intro").style.display = "none";
-  document.getElementById("survey").style.display = "block";
+/* ================= QUESTIONS ================= */
+const QUESTIONS = [
+  { id:"Q1", stage:"Crew Experience" },
+  { id:"Q2", stage:"Crew Experience" },
+  { id:"Q3", stage:"Crew Experience" },
+  { id:"Q4", stage:"Crew Experience" },
+  { id:"Q5", stage:"Crew Experience" },
+  { id:"Q6", stage:"Crew Experience" },
+  { id:"Q7", stage:"Crew Engagement" },
+  { id:"Q8", stage:"Crew Engagement" },
+  { id:"Q9", stage:"Crew Engagement" },
+  { id:"Q10", stage:"Crew Engagement" },
+  { id:"Q11", stage:"Crew Engagement" },
+  { id:"Q12", stage:"Performance Citizenship" },
+  { id:"Q13", stage:"Performance Citizenship" },
+  { id:"Q14", stage:"Performance Citizenship" },
+  { id:"Q15", stage:"Performance Citizenship" },
+  { id:"Q16", stage:"Performance Citizenship" },
+  { id:"Q24", stage:"Crew Prosperity" },
+  { id:"Q25", stage:"Crew Prosperity" },
+  { id:"Q26", stage:"Crew Prosperity" },
+  { id:"Q27", stage:"Crew Prosperity" }
+];
 
-  const form = document.getElementById("likertForm");
-  form.innerHTML = "";
+/* ================= RENDER ================= */
+const form = document.getElementById("surveyForm");
+QUESTIONS.forEach(q => {
+  form.innerHTML += `
+    <p><strong>${q.id}</strong></p>
+    <input type="number" min="1" max="5" name="${q.id}" required>
+  `;
+});
 
-  CREW_QUESTIONS.forEach((q, i) => {
-    const block = document.createElement("div");
-    block.style.borderTop = "1px solid #ddd";
-    block.style.padding = "12px 0";
+/* ================= SUBMIT ================= */
+async function submitSurvey() {
+  const rows = [];
 
-    block.innerHTML = `
-      <p><strong>Soal ${i + 1}.</strong> ${q.text}</p>
-      ${[1,2,3,4,5].map(v => `
-        <label style="margin-right:12px;">
-          <input type="radio" name="${q.id}" value="${v}"> ${v}
-        </label>
-      `).join("")}
-    `;
-    form.appendChild(block);
+  QUESTIONS.forEach(q => {
+    const value = Number(form[q.id].value);
+    rows.push({
+      survey_type: "crew",
+      token: token,
+      cpf_stage: q.stage,
+      question_id: q.id,
+      value: value,
+      submitted_at: new Date().toISOString()
+    });
   });
-}
 
-function goToReflection() {
-  for (const q of CREW_QUESTIONS) {
-    const checked = document.querySelector(`input[name="${q.id}"]:checked`);
-    if (!checked) {
-      alert("Semua pertanyaan skala wajib dijawab.");
-      return;
-    }
-    answers[q.id] = { stage: q.stage, value: Number(checked.value) };
-  }
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify(rows)
+  });
 
-  document.getElementById("survey").style.display = "none";
-  document.getElementById("openEnded").style.display = "block";
-}
-
-function submitSurvey() {
-  document.getElementById("openEnded").style.display = "none";
-  document.getElementById("thanks").style.display = "block";
+  document.getElementById("status").innerText =
+    res.ok ? "✅ Jawaban tersimpan" : "❌ Gagal mengirim data";
 }
 </script>
 
 </body>
 </html>
-``
