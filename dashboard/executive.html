@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>CPF Executive Dashboard</title>
 
   <!-- CSS -->
@@ -11,7 +11,6 @@
 
 <div class="container">
 
-  <!-- HERO -->
   <div class="hero">
     <h1>CPF Executive Dashboard</h1>
     <p class="hero-sub">
@@ -20,7 +19,6 @@
     </p>
   </div>
 
-  <!-- KONDISI CPF -->
   <div class="card">
     <h2>Kondisi CPF — Termometer Sistem</h2>
     <p>
@@ -32,7 +30,6 @@
     </p>
   </div>
 
-  <!-- REFLEKSI -->
   <div class="card">
     <h3>Refleksi Sistem</h3>
     <ul>
@@ -45,7 +42,6 @@
     </p>
   </div>
 
-  <!-- ADMIN -->
   <div class="card">
     <h3>Administrasi Survey CPF (Admin)</h3>
 
@@ -64,39 +60,27 @@
 </div>
 
 <script>
-/* =====================================================
-   KONFIGURASI WAJIB — GITHUB PAGES BASE URL
-   ===================================================== */
-const BASE_URL = "https://galihsumadireja.github.io/cpf-website";
+/* ===============================
+   AUTO DETECT BASE URL (ANTI SALAH)
+   =============================== */
+const BASE_URL = `${window.location.origin}/cpf-website`;
 
-/* =====================================================
-   TOKEN UTILITY
-   ===================================================== */
+/* ========= TOKEN ========= */
 function makeToken(prefix) {
-  return (
-    prefix +
-    "-" +
-    Math.random().toString(36).substring(2, 10).toUpperCase()
-  );
+  return prefix + "-" + Math.random().toString(36).substring(2, 10).toUpperCase();
 }
 
-/* =====================================================
-   LINK GENERATOR (FULL HTTPS, SHAREABLE)
-   ===================================================== */
+/* ========= LINK GENERATOR ========= */
 function generateCrewLink() {
   const token = makeToken("CREW");
   const url = `${BASE_URL}/survey/crew/index.html?token=${token}`;
   document.getElementById("crewLink").innerHTML =
-    'Link Crew: <a href="' + url + '" target="_blank">' + url + '</a>';
-}
-
-function generateCustomerLink() {
+    `Link Crew: <a href="${url}" target="_blankgenerateCustomerLink() {
   const token = makeToken("CUSTOMER");
   const url = `${BASE_URL}/survey/customer/index.html?token=${token}`;
   document.getElementById("customerLink").innerHTML =
-    'Link Customer: <a href="' + url + '" target="_blank">' + url + '</a>';
-}
-</script>
+    `Link Customer: <a href="${url}" target="_ipt>
 
 </body>
 </html>
+``
