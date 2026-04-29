@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>CPF Executive Dashboard</title>
 
-  <!-- ✅ PEMANGGILAN CSS YANG BENAR -->
-  <link rel="stylesheet" href="../css/cpf-style.css">
+  <!-- CSS -->
+  ../../css/cpf-style.css
 </head>
-
 <body>
 
 <div class="container">
@@ -49,9 +48,10 @@
   <!-- ADMIN -->
   <div class="card">
     <h3>Administrasi Survey CPF (Admin)</h3>
+
     <p class="note">
       Generate dan distribusikan link survey sesuai jenis stakeholder.
-      Link bersifat <strong>authenticated namun anonim</strong>.
+      Link bersifat <strong>tokenized dan anonim</strong>.
     </p>
 
     <button onclick="generateCrewLink()">Generate Link Crew</button>
@@ -64,21 +64,25 @@
 </div>
 
 <script>
-/* ========= TOKEN UTILITY ========= */
-function makeToken(prefix) {
-  return prefix + "-" + Math.random().toString(36).substring(2, 10).toUpperCase();
-}
-
-/* ========= LINK GENERATOR ========= */
-/* ========= KONFIGURASI BASE URL ========= */
+/* =====================================================
+   KONFIGURASI WAJIB — GITHUB PAGES BASE URL
+   ===================================================== */
 const BASE_URL = "https://galihsumadireja.github.io/cpf-website";
 
-/* ========= TOKEN UTILITY ========= */
+/* =====================================================
+   TOKEN UTILITY
+   ===================================================== */
 function makeToken(prefix) {
-  return prefix + "-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+  return (
+    prefix +
+    "-" +
+    Math.random().toString(36).substring(2, 10).toUpperCase()
+  );
 }
 
-/* ========= LINK GENERATOR ========= */
+/* =====================================================
+   LINK GENERATOR (FULL HTTPS, SHAREABLE)
+   ===================================================== */
 function generateCrewLink() {
   const token = makeToken("CREW");
   const url = `${BASE_URL}/survey/crew/index.html?token=${token}`;
@@ -89,14 +93,6 @@ function generateCrewLink() {
 function generateCustomerLink() {
   const token = makeToken("CUSTOMER");
   const url = `${BASE_URL}/survey/customer/index.html?token=${token}`;
-  document.getElementById("customerLink").innerHTML =
-    'Link Customer: <a href="' + url + '" target="_blank">' + url + '</a>';
-}
-
-
-function generateCustomerLink() {
-  const token = makeToken("CUSTOMER");
-  const url = "../survey/customer/index.html?token=" + token;
   document.getElementById("customerLink").innerHTML =
     'Link Customer: <a href="' + url + '" target="_blank">' + url + '</a>';
 }
