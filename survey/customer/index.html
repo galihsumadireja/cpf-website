@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Survey Kemitraan – Customer</title>
 
-  <!-- CSS: dari /survey/customer ke /css -->
-  <link rel="stylesheet" href="../../css/cpf-styless="container">
+  <!-- ✅ CSS WAJIB (INI KUNCI UTAMA) -->
+  <link rel="stylesheet" href="../../css/cpf-style.csscontainer">
 
   <!-- INTRO -->
   <section id="intro">
@@ -73,15 +73,16 @@
 </div>
 
 <script>
-/* ================= SUPABASE ================= */
+/* ===== SUPABASE ===== */
 const SUPABASE_URL = "https://XXXXX.supabase.co";   // GANTI
 const SUPABASE_ANON_KEY = "ANON_KEY_KAMU";          // GANTI
 const TABLE = "cpf_survey_responses";
 
-/* ================= TOKEN ================= */
-const token = new URLSearchParams(location.search).get("token") || "NO_TOKEN";
+/* ===== TOKEN ===== */
+const token =
+  new URLSearchParams(window.location.search).get("token") || "NO_TOKEN";
 
-/* ================= QUESTIONS ================= */
+/* ===== QUESTIONS ===== */
 const QUESTIONS = [
   { id:"Q17", stage:"Customer Satisfaction", text:"Layanan perusahaan ini konsisten tepat waktu dan sesuai dengan yang dijanjikan." },
   { id:"Q18", stage:"Customer Satisfaction", text:"Kualitas layanan perusahaan ini konsisten dari waktu ke waktu." },
@@ -94,7 +95,7 @@ const QUESTIONS = [
 
 const form = document.getElementById("surveyForm");
 
-/* ================= FLOW ================= */
+/* ===== FLOW ===== */
 function startSurvey() {
   document.getElementById("intro").style.display = "none";
   document.getElementById("survey").style.display = "block";
@@ -126,7 +127,7 @@ function goToReflection() {
   document.getElementById("reflection").style.display = "block";
 }
 
-/* ================= SUBMIT ================= */
+/* ===== SUBMIT ===== */
 async function submitSurvey() {
   const rows = QUESTIONS.map(q=>({
     survey_type:"customer",
@@ -161,3 +162,4 @@ async function submitSurvey() {
 
 </body>
 </html>
+``
