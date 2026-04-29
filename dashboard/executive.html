@@ -70,12 +70,29 @@ function makeToken(prefix) {
 }
 
 /* ========= LINK GENERATOR ========= */
+/* ========= KONFIGURASI BASE URL ========= */
+const BASE_URL = "https://galihsumadireja.github.io/cpf-website";
+
+/* ========= TOKEN UTILITY ========= */
+function makeToken(prefix) {
+  return prefix + "-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+}
+
+/* ========= LINK GENERATOR ========= */
 function generateCrewLink() {
   const token = makeToken("CREW");
-  const url = "../survey/crew/index.html?token=" + token;
+  const url = `${BASE_URL}/survey/crew/index.html?token=${token}`;
   document.getElementById("crewLink").innerHTML =
     'Link Crew: <a href="' + url + '" target="_blank">' + url + '</a>';
 }
+
+function generateCustomerLink() {
+  const token = makeToken("CUSTOMER");
+  const url = `${BASE_URL}/survey/customer/index.html?token=${token}`;
+  document.getElementById("customerLink").innerHTML =
+    'Link Customer: <a href="' + url + '" target="_blank">' + url + '</a>';
+}
+
 
 function generateCustomerLink() {
   const token = makeToken("CUSTOMER");
