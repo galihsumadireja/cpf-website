@@ -1,58 +1,87 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <title>Survey Customer – CPF</title>
+<htmlSurvey Customer – CPF</title><html lang="id">
+
+  <!-- ✅ CSS (BENAR, TIDAK JADI TEKS) -->
   ../css/cpf-style.css
 </head>
+
 <body>
 
 <div class="container">
 
   <h2>Survey Customer (CPF)</h2>
 
-  <form id="surveyForm"></form>
+  <p>
+    Mohon beri penilaian 1–5 untuk setiap pernyataan berikut.
+    <br>1 = Sangat Tidak Setuju, 5 = Sangat Setuju
+  </p>
 
-  <button onclick="submitSurvey()">Kirim Jawaban</button>
+  <form id="surveyForm">
+    <label>Q17</label>
+    <input type="number" min="1" max="5" name="Q17" required>
+
+    <label>Q18</label>
+    <input type="number" min="1" max="5" name="Q18" required>
+
+    <label>Q19</label>
+    <input type="number" min="1" max="5" name="Q19" required>
+
+    <label>Q20</label>
+    <input type="number" min="1" max="5" name="Q20" required>
+
+    <label>Q21</label>
+    <input type="number" min="1" max="5" name="Q21" required>
+
+    <label>Q22</label>
+    <input type="number" min="1" max="5" name="Q22" required>
+
+    <label>Q23</label>
+    <input type="number" min="1" max="5" name="Q23" required>
+
+    <button type="button" onclick="submitSurvey()">Kirim Jawaban</button>
+  </form>
+
   <div id="status" class="note"></div>
 
 </div>
 
 <script>
-/* ================= CONFIG ================= */
-const SUPABASE_URL = "GANTI_DENGAN_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "GANTI_DENGAN_ANON_KEY";
+/* =====================================================
+   🔴 GANTI DENGAN DATA SUPABASE KAMU
+   ===================================================== */
+const SUPABASE_URL = "https://XXXXX.supabase.co";
+const SUPABASE_ANON_KEY = "ANON_PUBLIC_KEY_KAMU";
 const TABLE = "cpf_survey_responses";
 
+/* =====================================================
+   TOKEN DARI URL
+   ===================================================== */
 const params = new URLSearchParams(window.location.search);
-const token = params.get("token");
+const token = params.get("token") || "NO_TOKEN";
 
-/* ================= QUESTIONS ================= */
+/* =====================================================
+   DEFINISI PERTANYAAN
+   ===================================================== */
 const QUESTIONS = [
-  { id:"Q17", stage:"Customer Satisfaction" },
-  { id:"Q18", stage:"Customer Satisfaction" },
-  { id:"Q19", stage:"Customer Satisfaction" },
-  { id:"Q20", stage:"Customer Satisfaction" },
-  { id:"Q21", stage:"Customer Loyalty" },
-  { id:"Q22", stage:"Customer Loyalty" },
-  { id:"Q23", stage:"Customer Loyalty" }
+  { id: "Q17", stage: "Customer Satisfaction" },
+  { id: "Q18", stage: "Customer Satisfaction" },
+  { id: "Q19", stage: "Customer Satisfaction" },
+  { id: "Q20", stage: "Customer Satisfaction" },
+  { id: "Q21", stage: "Customer Loyalty" },
+  { id: "Q22", stage: "Customer Loyalty" },
+  { id: "Q23", stage: "Customer Loyalty" }
 ];
 
-/* ================= RENDER ================= */
-const form = document.getElementById("surveyForm");
-QUESTIONS.forEach(q => {
-  form.innerHTML += `
-    <p><strong>${q.id}</strong></p>
-    <input type="number" min="1" max="5" name="${q.id}" required>
-  `;
-});
-
-/* ================= SUBMIT ================= */
+/* =====================================================
+   SUBMIT SURVEY KE SUPABASE
+   ===================================================== */
 async function submitSurvey() {
+  const form = document.getElementById("surveyForm");
   const rows = [];
 
-  QUESTIONS.forEach(q => {
+  for (const q of QUESTIONS) {
     const value = Number(form[q.id].value);
+
     rows.push({
       survey_type: "customer",
       token: token,
@@ -61,22 +90,36 @@ async function submitSurvey() {
       value: value,
       submitted_at: new Date().toISOString()
     });
-  });
+  }
 
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
-    },
-    body: JSON.stringify(rows)
-  });
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify(rows)
+    });
 
-  document.getElementById("status").innerText =
-    res.ok ? "✅ Jawaban tersimpan" : "❌ Gagal mengirim data";
+    if (!res.ok) {
+      throw new Error("Insert failed");
+    }
+
+    document.getElementById("status").innerText =
+      "✅ Jawaban berhasil disimpan. Terima kasih.";
+  } catch (err) {
+    document.getElementById("status").innerText =
+      "❌ Gagal mengirim data";
+  }
 }
 </script>
 
 </body>
 </html>
+``
+<head>
+  <meta charset="UTF-8">
