@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Survey Kemitraan – Customer</title>
+  <link rel="stylesheet" href="../../css/cpf-style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="section" id="intro">
+    <h2>Survey Kemitraan Customer</h2>
+
+    <p>
+      <strong>Jumlah pertanyaan:</strong><br>
+      • 7 pertanyaan skala (wajib dijawab)<br>
+      • 2 pertanyaan refleksi (opsional)
+    </p>
+
+    <p><strong>Anonim.</strong> Tidak digunakan untuk evaluasi individu.</p>
+
+    <button type="button" onclick="startSurvey()">Mulai Survey</button>
+  </div>
+
+  <div class="section" id="survey" style="display:none;">
+    <p><strong>Petunjuk:</strong><br>
+      Silakan pilih jawaban Anda dengan memilih salah satu angka.
+    </p>
+
+    <p style="font-size:14px;color:#556e6b;">
+      1 = Sangat Tidak Setuju ·
+      2 = Tidak Setuju ·
+      3 = Netral ·
+      4 = Setuju ·
+      5 = Sangat Setuju
+    </p>
+
+    <form id="likertForm"></form>
+
+    <button type="button" onclick="goToReflection()">Lanjut ke Pertanyaan Refleksi</button>
+  </div>
+
+  <div class="section" id="openEnded" style="display:none;">
+    <h3>Pertanyaan Refleksi (Opsional)</h3>
+
+    <label>1. Apa satu hal yang paling membuat Anda merasa puas atau kurang puas
+      dengan layanan PML? Mohon ceritakan alasannya.</label>
+    <textarea rows="3" style="width:100%;"></textarea>
+
+    <label>2. Jika Anda harus merekomendasikan PML kepada rekan atau kolega Anda,
+      nilai utama apa yang akan Anda sampaikan tentang kami? Jika tidak, apa yang harus kami perbaiki?</label>
+    <textarea rows="3" style="width:100%;"></textarea>
+
+    <button type="button" onclick="finish()">Kirim Jawaban</button>
+  </div>
+
+  <div class="section" id="thanks" style="display:none;">
+    <h3>Terima kasih</h3>
+  </div>
+
+</div>
+
+<script>
+const CUSTOMER_QUESTIONS = [
+  { id:"Q17", stage:"Customer Satisfaction", text:"Layanan perusahaan ini konsisten tepat waktu dan sesuai dengan yang dijanjikan." },
+  { id:"Q18", stage:"Customer Satisfaction", text:"Kualitas layanan perusahaan ini konsisten dari waktu ke waktu." },
+  { id:"Q19", stage:"Customer Satisfaction", text:"Perusahaan ini merespons masalah atau perubahan dengan cepat dan jelas." },
+  { id:"Q20", stage:"Customer Satisfaction", text:"Gangguan operasional ditangani secara profesional dan bertanggung jawab." },
+  { id:"Q21", stage:"Customer Loyalty", text:"Kami ingin melanjutkan kerja sama dengan perusahaan ini di masa depan." },
+  { id:"Q22", stage:"Customer Loyalty", text:"Jika memungkinkan, kami lebih memilih perusahaan ini dibandingkan penyedia lain." },
+  { id:"Q23", stage:"Customer Loyalty", text:"Gangguan kecil tidak mengurangi kepercayaan kami terhadap perusahaan ini." }
+];
+
+let answers = {};
+
+function startSurvey() {
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("survey").style.display = "block";
+
+  const form = document.getElementById("likertForm");
+  form.innerHTML = "";
+
+  CUSTOMER_QUESTIONS.forEach((q, i) => {
+    form.innerHTML += `
+      <div style="border-top:1px solid #ddd;padding:12px 0;">
+        <p><strong>Soal ${i + 1}.</strong> ${q.text}</p>
+        ${[1,2,3,4,5].map(v =>
+          `<label style="margin-right:12px;">
+            <input type="radio" name="${q.id}" value="${v}"> ${v}
+          </label>`
+        ).join("")}
+      </div>
+    `;
+  });
+}
+
+function goToReflection() {
+  for (const q of CUSTOMER_QUESTIONS) {
+    const checked = document.querySelector(`input[name="${q.id}"]:checked`);
+    if (!checked) {
+      alert("Semua pertanyaan skala wajib dijawab.");
+      return;
+    }
+    answers[q.id] = checked.value;
+  }
+
+  document.getElementById("survey").style.display = "none";
+  document.getElementById("openEnded").style.display = "block";
+}
+
+function finish() {
+  document.getElementById("openEnded").style.display = "none";
+  document.getElementById("thanks").style.display = "block";
+}
+</script>
+
+</body>
+</html>
+``
