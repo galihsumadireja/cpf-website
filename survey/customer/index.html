@@ -1,205 +1,79 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <title>Survey Kemitraan – Customer</title>
-  <!-- WAJIB: CSS agar layout rapi -->
-  <link rel="stylesheet" href="../../css/cpf-style.css">
-</head>
-<body>
-
-<div class="container">
-
-  <!-- INTRO -->
-  <section id="intro">
-    <h2>Survey Kemitraan Customer</h2>
-
-    <p><strong>Jumlah pertanyaan:</strong></p>
-    <ul>
-      <li>7 pertanyaan skala (wajib dijawab)</li>
-      <li>2 pertanyaan refleksi (opsional)</li>
-    </ul>
-
-    <p><strong>Anonim.</strong> Tidak digunakan untuk evaluasi individu.</p>
-    <button type="button" onclick="startSurvey()">Mulai Survey</button>
-  </section>
-
-  <!-- LIKERT -->
-  <section id="survey" style="display:none;">
-    <p class="note">
-      1 = Sangat Tidak Setuju ·
-      2 = Tidak Setuju ·
-      3 = Netral ·
-      4 = Setuju ·
-      5 = Sangat Setuju
-    </p>
-
-    <form id="surveyForm"></form>
-
-    <button type="button" onclick="goToReflection()">Lanjut</button>
-  </section>
-
-  <!-- REFLEKSI -->
-  <section id="reflection" style="display:none;">
-    <h3>Pertanyaan Refleksi (Opsional)</h3>
-
-    <div class="field">
-      <label for="oe1">
-        1. Apa satu hal yang paling membuat Anda merasa puas atau kurang puas
-        dengan layanan PML? Mohon ceritakan alasannya.
-      </label>
-      <textarea id="oe1" rows="4" style="width:100%;"></textarea>
-    </div>
-
-    <div class="field">
-      <label for="oe2">
-        2. Jika Anda harus merekomendasikan PML kepada rekan atau kolega Anda,
-        nilai utama apa yang akan Anda sampaikan tentang kami?
-        Jika tidak, apa yang harus kami perbaiki?
-      </label>
-      <textarea id="oe2" rows="4" style="width:100%;"></textarea>
-    </div>
-
-    <button type="button" onclick="submitSurvey()">Kirim Jawaban</button>
-  </section>
-
-  <!-- THANK YOU -->
-  <section id="thanks" style="display:none;">
-    <h3>Terima kasih</h3>
-    <p>Masukan Anda sangat berarti bagi kami.</p>
-  </section>
-
-</div>
-
 <script>
-/* ================= SUPABASE ================= */
-/* GANTI DENGAN PUNYA ANDA */
-const SUPABASE_URL = "https://XXXXX.supabase.co";
-const SUPABASE_KEY = "ANON_KEY_KAMU";
-
-/* ================= TOKEN ================= */
-const token =
-  new URLSearchParams(window.location.search).get("token") || "NO_TOKEN";
-
-/* ================= PERTANYAAN (TIDAK DIUBAH) ================= */
-const QUESTIONS = [
-  {
-    id:"Q17",
-    stage:"Customer Satisfaction",
-    text:"Layanan perusahaan ini konsisten tepat waktu dan sesuai dengan yang dijanjikan."
-  },
-  {
-    id:"Q18",
-    stage:"Customer Satisfaction",
-    text:"Kualitas layanan perusahaan ini konsisten dari waktu ke waktu."
-  },
-  {
-    id:"Q19",
-    stage:"Customer Satisfaction",
-    text:"Perusahaan ini merespons masalah atau perubahan dengan cepat dan jelas."
-  },
-  {
-    id:"Q20",
-    stage:"Customer Satisfaction",
-    text:"Gangguan operasional ditangani secara profesional dan bertanggung jawab."
-  },
-  {
-    id:"Q21",
-    stage:"Customer Loyalty",
-    text:"Kami ingin melanjutkan kerja sama dengan perusahaan ini di masa depan."
-  },
-  {
-    id:"Q22",
-    stage:"Customer Loyalty",
-    text:"Jika memungkinkan, kami lebih memilih perusahaan ini dibandingkan penyedia lain."
-  },
-  {
-    id:"Q23",
-    stage:"Customer Loyalty",
-    text:"Gangguan kecil tidak mengurangi kepercayaan kami terhadap perusahaan ini."
-  }
-];
-
-const form = document.getElementById("surveyForm");
-
-/* ================= FLOW ================= */
-function startSurvey() {
-  document.getElementById("intro").style.display = "none";
-  document.getElementById("survey").style.display = "block";
-
-  form.innerHTML = "";
-  QUESTIONS.forEach((q,i) => {
-    form.innerHTML += `
-      <div class="field">
-        <p><strong>Soal ${i+1}.</strong> ${q.text}</p>
-        ${[1,2,3,4,5].map(v => `
-          <label style="margin-right:12px;">
-            <input type="radio" name="${q.id}" value="${v}">
-            ${v}
-          </label>
-        `).join("")}
-      </div>
-      <hr>
-    `;
-  });
-}
-
-function goToReflection() {
-  for (const q of QUESTIONS) {
-    if (!form[q.id].value) {
-      alert("Semua pertanyaan skala wajib dijawab.");
-      return;
-    }
-  }
-  document.getElementById("survey").style.display = "none";
-  document.getElementById("reflection").style.display = "block";
-}
-
 /* ================= SUBMIT ================= */
 async function submitSurvey() {
-  const rowsLikert = QUESTIONS.map(q => ({
-    survey_type:"customer",
-    token:token,
-    cpf_stage:q.stage,
-    question_id:q.id,
-    value:Number(form[q.id].value),
-    submitted_at:new Date().toISOString()
-  }));
+  try {
+    // 1. KIRIM LIKERT
+    const rowsLikert = QUESTIONS.map(q => ({
+      survey_type: "customer",
+      token: token,
+      cpf_stage: q.stage,
+      question_id: q.id,
+      value: Number(form[q.id].value),
+      submitted_at: new Date().toISOString()
+    }));
 
-  await fetch(`${SUPABASE_URL}/rest/v1/cpf_survey_responses`, {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "Accept":"application/json",
-      "apikey":SUPABASE_KEY,
-      "Authorization":"Bearer " + SUPABASE_KEY,
-      "Prefer":"return=minimal"
-    },
-    body:JSON.stringify(rowsLikert)
-  });
+    const resLikert = await fetch(`${SUPABASE_URL}/rest/v1/cpf_survey_responses`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify(rowsLikert)
+    });
 
-  const oe1Text = document.getElementById("oe1").value;
-  const oe2Text = document.getElementById("oe2").value;
+    if (!resLikert.ok) {
+      alert("Gagal menyimpan jawaban skala (Likert).");
+      console.error(await resLikert.text());
+      return;
+    }
 
-  await fetch(`${SUPABASE_URL}/rest/v1/cpf_survey_reflections`, {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "apikey":SUPABASE_KEY,
-      "Authorization":"Bearer " + SUPABASE_KEY,
-      "Prefer":"return=minimal"
-    },
-    body:JSON.stringify([
-      {survey_type:"customer",token,question_id:"OE1",answer_text:oe1Text,submitted_at:new Date()},
-      {survey_type:"customer",token,question_id:"OE2",answer_text:oe2Text,submitted_at:new Date()}
-    ])
-  });
+    // 2. KIRIM REFLEKSI (OPSIONAL)
+    const oe1Text = document.getElementById("oe1").value || "";
+    const oe2Text = document.getElementById("oe2").value || "";
 
-  document.getElementById("reflection").style.display = "none";
-  document.getElementById("thanks").style.display = "block";
+    const resReflection = await fetch(`${SUPABASE_URL}/rest/v1/cpf_survey_reflections`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify([
+        {
+          survey_type: "customer",
+          token: token,
+          question_id: "OE1",
+          answer_text: oe1Text,
+          submitted_at: new Date().toISOString()
+        },
+        {
+          survey_type: "customer",
+          token: token,
+          question_id: "OE2",
+          answer_text: oe2Text,
+          submitted_at: new Date().toISOString()
+        }
+      ])
+    });
+
+    if (!resReflection.ok) {
+      alert("Jawaban skala tersimpan, tetapi refleksi gagal disimpan.");
+      console.error(await resReflection.text());
+      return;
+    }
+
+    // 3. SUKSES → PINDAH HALAMAN
+    document.getElementById("reflection").style.display = "none";
+    document.getElementById("thanks").style.display = "block";
+
+  } catch (err) {
+    console.error(err);
+    alert("Terjadi kesalahan teknis saat mengirim jawaban.");
+  }
 }
 </script>
-
-</body>
-</html>
 ``
