@@ -1,8 +1,6 @@
-<script>
-/* ================= SUBMIT ================= */
 async function submitSurvey() {
   try {
-    // 1. KIRIM LIKERT
+    // 1. KIRIM LIKERT (WAJIB)
     const rowsLikert = QUESTIONS.map(q => ({
       survey_type: "customer",
       token: token,
@@ -12,29 +10,31 @@ async function submitSurvey() {
       submitted_at: new Date().toISOString()
     }));
 
-    const resLikert = await fetch(`${SUPABASE_URL}/rest/v1/cpf_survey_responses`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "apikey": SUPABASE_KEY,
-        "Authorization": "Bearer " + SUPABASE_KEY,
-        "Prefer": "return=minimal"
-      },
-      body: JSON.stringify(rowsLikert)
-    });
+    const resLikert = await fetch(
+      `${SUPABASE_URL}/rest/v1/cpf_survey_responses`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "apikey": SUPABASE_KEY,
+          "Authorization": "Bearer " + SUPABASE_KEY,
+          "Prefer": "return=minimal"
+        },
+        body: JSON.stringify(rowsLikert)
+      }
+    );
 
     if (!resLikert.ok) {
-      alert("Gagal menyimpan jawaban skala (Likert).");
-      console.error(await resLikert.text());
+      alert("Gagal menyimpan jawaban skala.");
       return;
     }
 
-    // 2. KIRIM REFLEKSI (OPSIONAL)
+    // 2. KIRIM REFLEKSI (OPSIONAL, TIDAK BLOK UI)
     const oe1Text = document.getElementById("oe1").value || "";
     const oe2Text = document.getElementById("oe2").value || "";
 
-    const resReflection = await fetch(`${SUPABASE_URL}/rest/v1/cpf_survey_reflections`, {
+    fetch(`${SUPABASE_URL}/rest/v1/cpf_survey_reflections`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -58,22 +58,16 @@ async function submitSurvey() {
           submitted_at: new Date().toISOString()
         }
       ])
+    }).catch(err => {
+      console.warn("Refleksi gagal disimpan:", err);
     });
 
-    if (!resReflection.ok) {
-      alert("Jawaban skala tersimpan, tetapi refleksi gagal disimpan.");
-      console.error(await resReflection.text());
-      return;
-    }
-
-    // 3. SUKSES → PINDAH HALAMAN
+    // 3. UI SELALU LANJUT
     document.getElementById("reflection").style.display = "none";
     document.getElementById("thanks").style.display = "block";
 
   } catch (err) {
     console.error(err);
-    alert("Terjadi kesalahan teknis saat mengirim jawaban.");
+    alert("Terjadi kesalahan teknis.");
   }
 }
-</script>
-``
